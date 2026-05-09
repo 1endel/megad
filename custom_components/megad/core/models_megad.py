@@ -23,7 +23,7 @@ class SystemConfigMegaD(BaseModel):
     ip_server: str = Field(alias='sip')
     server_type: ServerTypeMegaD = Field(alias='srvt', default=ServerTypeMegaD.HTTP)
     slug: str = Field(alias='sct')
-    uart: ConfigUARTMegaD = Field(alias='gsm')
+    uart: ConfigUARTMegaD = Field(alias='gsm', default=ConfigUARTMegaD.DISABLED)
 
     @field_validator('ip_server', mode='before')
     def decode_ip_and_port(cls, value):
