@@ -167,20 +167,20 @@ class MegaDCoordinator(DataUpdateCoordinator):
                             f'id-{self.megad.id} обновляется.')
             raise UpdateFailed(f'Идёт процесс обновления ПО MegaD id: '
                                f'{self.megad.config.plc.megad_id}')
-        except Exception as err:
-            if self._count_connect < COUNTER_CONNECT:
-                self._count_connect += 1
-                _LOGGER.warning(
-                    f'Неудачная попытка обновления данных контроллера '
-                    f'id: {self.megad.config.plc.megad_id}. Ошибка: {err}.'
-                    f'Осталось попыток: '
-                    f'{COUNTER_CONNECT - self._count_connect + 1}'
-                )
-                return self.megad
-            else:
-                self.megad.is_available = False
-                raise UpdateFailed(f'Ошибка соединения с контроллером id: '
-                                   f'{self.megad.config.plc.megad_id}: {err}')
+        # except Exception as err:
+        #     if self._count_connect < COUNTER_CONNECT:
+        #         self._count_connect += 1
+        #         _LOGGER.warning(
+        #             f'Неудачная попытка обновления данных контроллера '
+        #             f'id: {self.megad.config.plc.megad_id}. Ошибка: {err}.'
+        #             f'Осталось попыток: '
+        #             f'{COUNTER_CONNECT - self._count_connect + 1}'
+        #         )
+        #         return self.megad
+        #     else:
+        #         self.megad.is_available = False
+        #         raise UpdateFailed(f'Ошибка соединения с контроллером id: '
+        #                            f'{self.megad.config.plc.megad_id}: {err}')
 
     async def set_flashing_state(self, state):
         """Устанавливает режим прошивки устройства."""
