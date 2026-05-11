@@ -261,7 +261,7 @@ class PortOutConfig(PortConfig):
 
     default_value: bool = Field(alias='d', default=False)
     group: int | None = Field(alias='grp', default=None)
-    mode: ModeOutMegaD = Field(alias='m')
+    mode: ModeOutMegaD = Field(alias='m', default=ModeOutMegaD.SW)
 
     @field_validator('default_value', mode='before')
     def parse_default_value(cls, value):

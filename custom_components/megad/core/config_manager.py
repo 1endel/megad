@@ -318,6 +318,8 @@ class MegaDConfigManager:
                     ports.append(PortOutRGB(**params))
                 elif params.get(MODE) == ModeOutMegaD.DS2413.value_plc:
                     ports.append(PortOut1W(**params))
+                else:
+                    ports.append(PortOutRelayConfig(**params))
             elif params.get(TYPE_PORT) == TypePortMegaD.DSEN.value_plc:
                 if params.get(TYPE_DEVICE) == TypeDSensorMegaD.ONEW.value_plc:
                     ports.append(OneWireSensorConfig(**params))
