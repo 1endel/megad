@@ -6,7 +6,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 
 from .config_manager import MegaDConfigManager
-from ..const import NAME_SCRIPT_MEGAD, CONFIG, PORT, BASE_URL
+from ..const import NAME_SCRIPT_MEGAD, CONFIG, PORT, BASE_URL, START_CONFIG
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,6 +29,8 @@ async def async_get_page_port(
 async def async_get_page_config(
         cf: int, url: str, session: aiohttp.ClientSession) -> str:
     """Получение страницы конкретной конфигурации контроллера"""
+    if cf == START_CONFIG:
+        return await async_get_page({}, url, session)
     return await async_get_page({CONFIG: cf}, url, session)
 
 
