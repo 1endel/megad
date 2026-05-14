@@ -64,7 +64,7 @@ def get_uptime(page_cf: str) -> int:
 
 
 def get_temperature_megad(page_cf: str) -> float:
-    """Получить температуру на плате контроллера"""
+    """Получить температуру на плате контроллера."""
     soup = BeautifulSoup(page_cf, 'lxml')
     temp_text = soup.find(string=lambda text: "Temp" in text)
     if temp_text:
@@ -74,7 +74,7 @@ def get_temperature_megad(page_cf: str) -> float:
 
 
 def get_version_software(page_cf: str) -> str:
-    """Получить версию прошивки контроллера"""
+    """Получить версию прошивки контроллера."""
     software = '0.0'
     soup = BeautifulSoup(page_cf, 'lxml')
     software_text = soup.find(string=lambda text: '(fw:' in text)
@@ -82,8 +82,17 @@ def get_version_software(page_cf: str) -> str:
         software = software_text.replace("(fw:", "").strip().strip(')')
     return software
 
+def get_version_chip(page_cf: str) -> str:
+    """Получить версию чипа контроллера."""
+    chip = ''
+    soup = BeautifulSoup(page_cf, 'lxml')
+    chip_text = soup.find(string=lambda text: 'MegaD' in text)
+    if chip_text:
+        chip = chip_text.replace('MegaD-', '').strip()
+    return chip
+
 async def get_slug_server(page_cf: str) -> str:
-    """Получает поле script в интерфейсе конфигурации megad"""
+    """Получает поле script в интерфейсе конфигурации megad."""
     soup = BeautifulSoup(page_cf, 'lxml')
     teg = soup.find('input', {'name': NAME_SCRIPT_MEGAD})
     return teg.get('value')

@@ -25,7 +25,7 @@ from .config_parser import (
     get_uptime, async_get_page_config, get_temperature_megad,
     get_version_software, async_get_page_port, get_set_temp_thermostat,
     get_status_thermostat, async_get_page, get_params_pid, get_latest_version,
-    get_names_i2c
+    get_names_i2c, get_version_chip
 )
 from .const_fw import FW_PATH
 from .enums import (
@@ -84,6 +84,7 @@ class MegaD:
         self.software: str | None = None
         self.lt_version_sw: LatestVersionMegaD = LatestVersionMegaD()
         self.lt_version_sw_local: LatestVersionMegaD = LatestVersionMegaD()
+        self.chip = ''
         self.is_flashing = False
         self.is_available = False
         self.init_ports()
@@ -181,20 +182,24 @@ class MegaD:
             START_CONFIG, self.url, self.session
         )
         self.software = get_version_software(page_cf0)
-        _LOGGER.debug(f'Версия ПО контроллера id: {self.id}: {self.software}')
+        self.chip = get_version_chip(page_cf0)
+        _LOGGER.debug(f'Контроллер с id: {self.id}. '
+                      f'Версия чипа: {self.chip}, версия ПО: {self.software}')
 
         await self.fw_checker.update_page_firmwares()
         await self.update_latest_software()
 
         await asyncio.sleep(TIME_SLEEP_REQUEST)
-        page_cf1 = await async_get_page_config(
-            MAIN_CONFIG, self.url, self.session
-        )
-        self.uptime = get_uptime(page_cf1)
-        _LOGGER.debug(f'Время работы контроллера id:{self.id}: {self.uptime}')
-        self.temperature = get_temperature_megad(page_cf1)
-        _LOGGER.debug(f'Температура платы контролера '
-                      f'id:{self.id}: {self.temperature}')
+        if self.chip == '2561':
+            page_cf1 = await async_get_page_config(
+                MAIN_CONFIG, self.url, self.session
+            )
+            self.uptime = get_uptime(page_cf1)
+            _LOGGER.debug(f'Время работы контроллера id:{self.id}: '
+                          f'{self.uptime}')
+            self.temperature = get_temperature_megad(page_cf1)
+            _LOGGER.debug(f'Температура платы контролера '
+                          f'id:{self.id}: {self.temperature}')
         if self.pids:
             await self.update_pids()
 

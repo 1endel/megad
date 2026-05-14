@@ -47,6 +47,9 @@ async def async_setup_entry(
     entry_id = config_entry.entry_id
     coordinator = hass.data[DOMAIN][ENTRIES][entry_id]
 
+    if coordinator.megad.chip == '328':
+        return
+
     firmware_update_entity = MegaDFirmwareUpdate(coordinator, entry_id)
     hass.data[DOMAIN][CURRENT_ENTITY_IDS][entry_id].append(
         firmware_update_entity.unique_id

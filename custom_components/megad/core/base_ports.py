@@ -46,6 +46,14 @@ class BasePort(ABC):
                 f'type={self.conf.type_port}, state={self._state}, '
                 f'name={self.conf.name})>')
 
+    @staticmethod
+    def is_number(value: str) -> bool:
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
+
 
 class BinaryPort(BasePort, ABC):
     """Базовый бинарный порт"""
@@ -504,7 +512,7 @@ class OneWireSensorPort(DigitalSensorBase):
 
     def short_data(self, data):
         """Обработка данных если температура получена одним числом"""
-        if data.isdigit():
+        if self.is_number(data):
             self._state[TEMPERATURE] = data
         else:
             self._state[TEMPERATURE] = None
@@ -809,7 +817,7 @@ class AnalogSensor(BasePort):
         data: 224
         """
         try:
-            if data.isdigit():
+            if self.is_number(data):
                 self._state = data
             elif data.lower() == PLC_BUSY:
                 raise MegaDBusy

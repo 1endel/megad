@@ -160,13 +160,13 @@ async def async_setup_entry(
         if isinstance(port, AnalogSensor):
             unique_id = f'{entry_id}-{megad.id}-{port.conf.id}-analog'
             sensors.append(AnalogSensorMegaD(coordinator, port, unique_id))
-
-    sensors.append(SensorDeviceMegaD(
-        coordinator, f'{entry_id}-{megad.id}-{TEMPERATURE}', TEMPERATURE)
-    )
-    sensors.append(SensorDeviceMegaD(
-        coordinator, f'{entry_id}-{megad.id}-{UPTIME}', UPTIME)
-    )
+    if megad.chip == '2561':
+        sensors.append(SensorDeviceMegaD(
+            coordinator, f'{entry_id}-{megad.id}-{TEMPERATURE}', TEMPERATURE)
+        )
+        sensors.append(SensorDeviceMegaD(
+            coordinator, f'{entry_id}-{megad.id}-{UPTIME}', UPTIME)
+        )
     for pid in megad.pids:
         unique_id = f'{entry_id}-{megad.id}-{pid.conf.id}-pid-value'
         sensors.append(PIDSensorMegaD(coordinator, pid, unique_id))
