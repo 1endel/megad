@@ -89,6 +89,7 @@ def get_version_chip(page_cf: str) -> str:
     chip_text = soup.find(string=lambda text: 'MegaD' in text)
     if chip_text:
         chip = chip_text.replace('MegaD-', '').strip()
+        chip = chip.split(' ')[0]
     return chip
 
 async def get_slug_server(page_cf: str) -> str:

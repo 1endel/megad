@@ -169,6 +169,16 @@ class MegaD:
         _LOGGER.debug(f'Состояние всех портов id:{self.id}: {text}')
         return text
 
+    async def update_system_info(self):
+        """Обновление системных данных контроллера."""
+        page_cf0 = await async_get_page_config(
+            START_CONFIG, self.url, self.session
+        )
+        self.software = get_version_software(page_cf0)
+        self.chip = get_version_chip(page_cf0)
+        _LOGGER.debug(f'Контроллер с id: {self.id}. '
+                      f'Версия чипа: {self.chip}, версия ПО: {self.software}')
+
     async def update_data(self):
         """Обновление всех данных контроллера."""
         if self.is_flashing:
@@ -178,13 +188,7 @@ class MegaD:
         await self.update_ports()
         await self.update_current_time()
         await asyncio.sleep(TIME_SLEEP_REQUEST)
-        page_cf0 = await async_get_page_config(
-            START_CONFIG, self.url, self.session
-        )
-        self.software = get_version_software(page_cf0)
-        self.chip = get_version_chip(page_cf0)
-        _LOGGER.debug(f'Контроллер с id: {self.id}. '
-                      f'Версия чипа: {self.chip}, версия ПО: {self.software}')
+        await self.update_system_info()
 
         await self.fw_checker.update_page_firmwares()
         await self.update_latest_software()
