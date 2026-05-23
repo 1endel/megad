@@ -31,6 +31,7 @@
         "data": {
           "ip": "Controller IP address or domain name:",
           "password": "Controller password:",
+          "enable_validation": "Use integration as the main one for the controller",
           "search_device_menu": "change_ip_device"
         }
       },
@@ -94,7 +95,8 @@
         "description": "Connection parameters used.",
         "data": {
           "ip": "Controller IP address:",
-          "password": "Controller password:"
+          "password": "Controller password:",
+          "enable_validation": "Use integration as the main one for the controller"
         }
       },
       "get_config": {

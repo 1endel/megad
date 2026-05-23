@@ -95,12 +95,17 @@ async def validate_password(url: str, session: aiohttp.ClientSession) -> None:
             raise InvalidAuthorized
 
 
-async def validate_slug(url: str, session: aiohttp.ClientSession) -> None:
+async def validate_slug(
+        url: str,
+        session: aiohttp.ClientSession,
+        enable: bool = True
+) -> None:
     """Валидация поля script в контроллере. Должно быть = megad."""
-    page = await async_get_page_config(1, url, session)
-    slug = await get_slug_server(page)
-    if slug != DOMAIN:
-        raise InvalidSlug
+    if enable:
+        page = await async_get_page_config(1, url, session)
+        slug = await get_slug_server(page)
+        if slug != DOMAIN:
+            raise InvalidSlug
 
 
 async def validate_megad_id(megad_id) -> None:
@@ -130,7 +135,8 @@ class MegaDBaseFlow(config_entries.ConfigEntryBaseFlow):
                         )): str,
                     vol.Required(schema="password", default=self.data.get(
                         'password', DEFAULT_PASSWORD
-                        )): str
+                        )): str,
+                    vol.Optional(schema="enable_validation", default=True): bool
                 }
             )
 
@@ -196,9 +202,11 @@ class MegaDBaseFlow(config_entries.ConfigEntryBaseFlow):
             if user_input.get('return_main_menu', False):
                 return await self.async_step_get_config()
             try:
-                url = self.data.get('url')
+                url = self.data.get('url', '')
+                print(self.data)
+                enable_validation = self.data.get('enable_validation', True)
                 session = async_get_clientsession(self.hass)
-                await validate_slug(url, session)
+                await validate_slug(url, session, enable_validation)
                 name_file = user_input.get('config_list')
                 file_path = self.get_path_to_config(name_file)
                 self.data['file_path'] = file_path
