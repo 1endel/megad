@@ -492,7 +492,14 @@ class MegaDConfigFlow(MegaDBaseFlow, config_entries.ConfigFlow, domain=DOMAIN):
                     self.data = {
                         'url': url,
                         'ip': user_input['ip'],
-                        'password': password
+                        'password': password,
+                        # Preserve the user's choice from the connection form.
+                        # Upstream dropped this value here, so an unchecked
+                        # "main integration" box reverted to validation=True
+                        # when the saved controller config was selected.
+                        'enable_validation': user_input.get(
+                            'enable_validation', True
+                        )
                     }
                 return await self.async_step_get_config()
             except InvalidIpAddressExist:

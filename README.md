@@ -1,3 +1,7 @@
+> **Endel staging fork:** preserves the unchecked "main integration"
+> option during setup, allowing the existing controller callback settings
+> to remain unchanged. Based on upstream v2026.5.1.
+
 ## MegaD для Home Assistant
 *Неофициальная версия интеграции.*  
 
