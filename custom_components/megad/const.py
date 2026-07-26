@@ -192,6 +192,7 @@ RELAY_OFF = ['0', 'off']
 PLATFORMS = [
     'binary_sensor',
     'sensor',
+    'button',
     'switch',
     'light',
     'fan',
@@ -200,6 +201,20 @@ PLATFORMS = [
     'update',
     'text'
 ]
+
+# Staging-only pulse buttons for outputs whose physical function has been
+# independently verified. Durations use MegaD's 0.1 second pause unit.
+PULSE_BUTTONS = {
+    '101': (
+        {
+            'port': 20,
+            'pause': 20,
+            'cooldown': 5,
+            'name': 'Autovärava impulss',
+            'icon': 'mdi:gate',
+        },
+    ),
+}
 
 
 @dataclass(frozen=True)
