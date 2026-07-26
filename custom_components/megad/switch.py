@@ -9,7 +9,9 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 from . import MegaDCoordinator
-from .const import DOMAIN, PORT_COMMAND, ENTRIES, CURRENT_ENTITY_IDS
+from .const import (
+    DOMAIN, PORT_COMMAND, ENTRIES, CURRENT_ENTITY_IDS, PULSE_BUTTONS
+)
 from .core.base_ports import (
     ReleyPortOut, PWMPortOut, I2CExtraPCA9685, I2CExtraMCP230xx, OneWirePortOut
 )
@@ -34,18 +36,29 @@ async def async_setup_entry(
     coordinator = hass.data[DOMAIN][ENTRIES][entry_id]
     megad = coordinator.megad
     groups = {}
+    pulse_ports = {
+        config['port'] for config in PULSE_BUTTONS.get(str(megad.id), ())
+    }
+    pulse_groups = {
+        port.conf.group for port in megad.ports
+        if (isinstance(port, ReleyPortOut) and
+            port.conf.id in pulse_ports and
+            port.conf.group is not None)
+    }
 
     switches = []
     for port in megad.ports:
         if isinstance(port, ReleyPortOut):
-            if (port.conf.device_class == DeviceClassControl.SWITCH or
-                    port.conf.device_class == DeviceClassControl.OUTLET):
+            if (port.conf.id not in pulse_ports and
+                    (port.conf.device_class == DeviceClassControl.SWITCH or
+                     port.conf.device_class == DeviceClassControl.OUTLET)):
                 unique_id = f'{entry_id}-{megad.id}-{port.conf.id}-switch'
                 switches.append(SwitchMegaD(
                     coordinator, port, unique_id)
                 )
         if isinstance(port, (ReleyPortOut, PWMPortOut)):
-            if port.conf.group is not None:
+            if (port.conf.group is not None and
+                    port.conf.group not in pulse_groups):
                 groups.setdefault(port.conf.group, []).append(port.conf.id)
         if isinstance(port, I2CExtraPCA9685):
             for config in port.extra_confs:
@@ -57,7 +70,8 @@ async def async_setup_entry(
                     switches.append(SwitchExtraMegaD(
                         coordinator, port, config, unique_id)
                     )
-                if config.group is not None:
+                if (config.group is not None and
+                        config.group not in pulse_groups):
                     groups.setdefault(config.group, []).append(
                         f'{port.conf.id}e{config.id}'
                     )
