@@ -209,7 +209,7 @@ PULSE_BUTTONS = {
         {
             'port': 18,
             'pause': 20,
-            'cooldown': 3,
+            'cooldown': 2.5,
             'name': 'Garaažiukse impulss',
             'icon': 'mdi:garage',
         },
