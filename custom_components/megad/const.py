@@ -207,6 +207,13 @@ PLATFORMS = [
 PULSE_BUTTONS = {
     '101': (
         {
+            'port': 18,
+            'pause': 20,
+            'cooldown': 5,
+            'name': 'Garaažiukse impulss',
+            'icon': 'mdi:garage',
+        },
+        {
             'port': 20,
             'pause': 20,
             'cooldown': 5,
