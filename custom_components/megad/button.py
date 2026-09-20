@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from time import monotonic
 
@@ -77,17 +78,37 @@ class MegaDPulseButton(CoordinatorEntity, ButtonEntity):
             f'{self._megad.id}_port{self._port}_pulse'
         )
         self._last_press = 0.0
+        self._inflight: asyncio.Task[None] | None = None
 
     async def async_press(self) -> None:
-        """Send one atomic controller-side pulse command."""
-        now = monotonic()
-        if now - self._last_press < self._cooldown:
-            raise HomeAssistantError(
-                f'Pulse button cooldown is {self._cooldown} seconds'
+        """Send one pulse, coalescing duplicate calls while it is in flight."""
+        task = self._inflight
+        if task is not None and not task.done():
+            _LOGGER.info(
+                'MegaD-%s coalesced duplicate pulse request on port %s',
+                self._megad.id,
+                self._port,
             )
+        else:
+            now = monotonic()
+            if now - self._last_press < self._cooldown:
+                raise HomeAssistantError(
+                    f'Pulse button cooldown is {self._cooldown} seconds'
+                )
 
+            task = self.hass.async_create_task(self._async_send_pulse())
+            self._inflight = task
+
+        try:
+            # A disconnected mobile client must not cancel a pulse already sent.
+            await asyncio.shield(task)
+        finally:
+            if task.done() and self._inflight is task:
+                self._inflight = None
+
+    async def _async_send_pulse(self) -> None:
+        """Execute one atomic controller-side pulse command."""
         command = build_pulse_command(self._port, self._pause)
-        self._last_press = now
         response = await self._megad.request_to_megad(
             f'{COMMAND}={command}'
         )
@@ -95,6 +116,8 @@ class MegaDPulseButton(CoordinatorEntity, ButtonEntity):
         text = (await response.text()).strip().lower()
         if text == 'busy':
             raise HomeAssistantError('MegaD controller is busy; pulse not started')
+
+        self._last_press = monotonic()
 
         _LOGGER.info(
             'MegaD-%s started verified pulse on port %s for %.1f seconds',
